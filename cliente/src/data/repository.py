@@ -70,3 +70,7 @@ class Repository:
     def get_most_selled_products():
         response = Provider.execute(Queries.get_most_selled_products())
         return response
+    
+    def get_quantity_products_selled():
+        response = Provider.execute(Queries.get_quantity_products_selled())
+  
