@@ -218,3 +218,19 @@ class DashboardController:
                 "times": product["times"]
             })
         return result
+    
+    def load_quantity_products_selled():
+        response = Repository.get_most_selled_products()
+        if response.status_code != 200:
+            return []
+        
+        result = []
+        date = []
+        json_response = json.loads(response.text)
+        
+        assert('data' in json_response.keys())
+        assert('response' in json_response['data'].keys())
+        
+        return result
+        
+        
