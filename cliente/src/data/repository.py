@@ -73,4 +73,5 @@ class Repository:
     
     def get_quantity_products_selled():
         response = Provider.execute(Queries.get_quantity_products_selled())
+        return response
   
