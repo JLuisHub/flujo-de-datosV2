@@ -97,6 +97,20 @@ class Queries:
         """
 
     @staticmethod
+    def get_sales_per_date_range(date_from, date_to):
+        return """
+        {
+            response(func: has(date)) @filter(between(date, %s, %s)) {
+                date
+                sold: ~bought {
+                    price
+                    quantity: count(bought)
+                }
+            }
+        }
+        """ % (date_from.strftime("%Y-%m-%d"), date_to.strftime("%Y-%m-%d"))
+
+    @staticmethod
     def get_orders_per_location():
         return """
             {

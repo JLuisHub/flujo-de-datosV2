@@ -12,6 +12,7 @@
 #-------------------------------------------------------------------------
 from src.data.repository import Repository
 import json
+from datetime import datetime
 
 class DashboardController:
 
@@ -138,6 +139,32 @@ class DashboardController:
                     total += (int(order["quantity"]) * float(order["quantity"]))
             result["sales"].append(total)
             
+        return result
+
+    @staticmethod
+    def load_sales_per_date_range(date_from=datetime.utcnow().date(), date_to=datetime.utcnow().date()):
+        response = Repository.get_sales_by_date_range(date_from, date_to)
+        if response.status_code != 200:
+            return {
+                "sales": [],
+                "dates": []
+            }
+        result = {
+            "sales": [],
+            "dates": []
+        }
+        json_response = json.loads(response.text)
+
+        assert('data' in json_response.keys())
+        assert('response' in json_response['data'].keys())
+
+        for entry in json_response["data"]["response"]:
+            result["dates"].append(entry["date"])
+            total = 0
+            for sale in entry["sold"]:
+                total += (int(sale["quantity"]) * float(sale["quantity"]))
+            result["sales"].append(total)
+
         return result
 
     @staticmethod
