@@ -169,3 +169,13 @@ class Queries:
                 }
             }
         """
+        
+    def get_quantity_products_selled():
+        return """
+            {
+                response(func: has(invoice),orderasc: <date>){
+                        quantity
+                        date
+                }
+            }
+        """
