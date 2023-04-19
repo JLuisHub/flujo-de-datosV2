@@ -46,7 +46,7 @@ docker build -t cliente .
 Para ejecutar el sistema utiliza el siguiente comando:
 
 ```shell
-docker run --name cliente -p 0.0.0.0:5000:5000 --link dgraph:dgraph cliente
+docker run --rm --name cliente -p 0.0.0.0:5000:5000 --link dgraph:dgraph cliente
 ```
 
 desde un navegador, accede a la url `http://localhost:5000` para visualizar el reporte del sistema
