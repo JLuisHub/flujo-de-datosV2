@@ -31,7 +31,7 @@ Componente responsable de ejecutar el proceso de *extracción*, *transformación
 ## Prerequisitos
 
 Para ejecutar este componente es necesario contar con la ejecución de Dgraph, parea ello utilizamos el siguiente comando:
-
+eodyisusdenazar41
 ```shell
 docker run -it -p 5080:5080 -p 6080:6080 -p 8080:8080 -p 9080:9080 --name dgraph dgraph/standalone:latest
 ```
