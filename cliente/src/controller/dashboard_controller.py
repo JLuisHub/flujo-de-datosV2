@@ -10,9 +10,12 @@
 #   Este archivo define la funcionalidad del componente
 #
 #-------------------------------------------------------------------------
+from datetime import datetime
+from operator import itemgetter
 from src.data.repository import Repository
 import json
 from datetime import datetime
+
 
 class DashboardController:
 
@@ -246,18 +249,28 @@ class DashboardController:
             })
         return result
     
-    def load_quantity_products_selled():
-        response = Repository.get_most_selled_products()
+    @staticmethod
+    def load_most_selled_products2():
+        response = Repository.get_most_selled_products2()
         if response.status_code != 200:
             return []
-        
         result = []
-        date = []
         json_response = json.loads(response.text)
-        
         assert('data' in json_response.keys())
         assert('response' in json_response['data'].keys())
-        
+
+        for product in json_response["data"]["response"]:
+            for product2 in product["product"]:
+                second2 = product["date"]
+                print(second2)
+                d2 = datetime.strptime(second2,"%Y-%m-%dT%H:%M:%S%fZ")
+                d1 = datetime.strptime("2023-01-24T00:00:00Z","%Y-%m-%dT%H:%M:%S%fZ")
+                if d2==d1:
+                    result.append({
+                        "times":product2["times"],
+                        "date": product["date"],
+                        "product": product2["description"]
+                    })
+                    result=sorted(result, key=itemgetter('times'))
+                    result.reverse()
         return result
-        
-        

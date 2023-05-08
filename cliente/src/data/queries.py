@@ -169,7 +169,23 @@ class Queries:
                 }
             }
         """
-        
+    
+    def get_most_selled_products2():
+        return """
+            {
+                response(func: has(invoice)) {
+                    invoice
+                    total
+                    date
+                    product: ~bought {
+                        price
+                        description
+                        times:count(bought)
+                    }
+                }
+            }
+        """
+    
     def get_quantity_products_selled():
         return """
             {

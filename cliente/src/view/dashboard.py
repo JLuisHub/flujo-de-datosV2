@@ -15,8 +15,10 @@ from src.controller.dashboard_controller import DashboardController
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from dash import dcc, html, Output, Input
+from datetime import datetime, date
+import dash
 
-from datetime import datetime
+app = dash.Dash(__name__)
 
 class Dashboard:
 
@@ -131,6 +133,19 @@ class Dashboard:
                             [
                                 dbc.Col(
                                     self._panel_most_selled_products(),
+                                    width=12
+                                ),
+                            ]
+                        )
+                    ]
+                ),
+                html.Br(),
+                html.Div(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    self._panel_most_selled_products2(),
                                     width=12
                                 ),
                             ]
@@ -370,3 +385,46 @@ class Dashboard:
                 )
             ]
         )
+    
+    def _panel_most_selled_products2(self):
+        most_selled = DashboardController.load_most_selled_products2()
+        return html.Div(
+            [
+                dcc.DatePickerRange(
+                id='datepicker-range',
+                min_date_allowed=date(2023, 1, 1),
+                max_date_allowed=date(2023, 4, 12),
+                initial_visible_month=date(2023, 1, 1),
+                end_date=date(2023, 4, 12)
+                ),
+                html.Button('Buscar', id='button'),
+                html.Div(id='output-container-date-picker-range'),
+                dbc.Card(
+                    [
+                        dbc.CardBody(
+                            [
+                                html.H3("BEST SELLER BY DATE RANGE", className="card-title2"),
+                                html.Br(),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            [
+                                                dbc.Row(
+                                                    [
+                                                        html.H5(f"- d {product['date']} // d {product['product']} // t {product['times']}", style={"font-weight":"bold"}),
+                                                    ]
+                                                ),
+                                            ]
+                                        )
+
+                                        for product in most_selled
+                                    ]
+                                )
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
+    
+    
