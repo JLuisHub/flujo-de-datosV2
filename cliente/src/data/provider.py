@@ -12,9 +12,10 @@
 #
 #-------------------------------------------------------------------------
 import requests
+from os import environ
 
-host = "http://dgraph"
-port = "8080"
+host = environ.get("DB_HOST", "http://dgraph")
+port = environ.get("DB_PORT", "8080")
 
 class Provider:
 

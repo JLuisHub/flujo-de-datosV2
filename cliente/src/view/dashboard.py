@@ -14,19 +14,32 @@
 from src.controller.dashboard_controller import DashboardController
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from dash import dcc, html
+from dash import dcc, html, Output, Input
+
+from datetime import datetime
 
 class Dashboard:
 
-    def __init__(self):
-        pass
+    def __init__(self, app):
+        self.app = app
+        self.app.callback(
+            Output("sales-per-date", "figure"),
+            [Input("date_from", "value"),Input("date_to", "value")]
+        )(self.update_dates)
+        self.date_from = self.date_to = datetime.now().date()
+
+    def update_dates(self, date_from, date_to):
+        date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else datetime.now().date()
+        date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else datetime.now().date()
+        data = DashboardController.load_sales_per_date_range(date_from, date_to)
+        return px.bar(data, x="dates", y="sales")
 
     def document(self):
         return dbc.Container(
             fluid = True,
             children = [
                 html.Br(),
-                self._header_title("Sales Report"),
+                self._navbar_dates_picker("Sales Report"),
                 html.Div(html.Hr()),
                 self._header_subtitle("Sales summary financial report"),
                 html.Br(),
@@ -51,6 +64,30 @@ class Dashboard:
                             [
                                 dbc.Col(
                                     self._bar_chart_sales_per_location(),
+                                    width=12
+                                ),
+                            ]
+                        )
+                    ]
+                ),
+                html.Br(),
+                html.Div(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    html.H3("Sales per date", className="card-title"),
+                                                    dcc.Graph(
+                                                        id='sales-per-date',
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
                                     width=12
                                 ),
                             ]
@@ -120,6 +157,7 @@ class Dashboard:
                 ),
             ],
             id="blurb",
+            style={"margin-top": "100px"}
         )
 
     def _card_value(self, label, value):
@@ -162,6 +200,28 @@ class Dashboard:
                     ]
                 ),
             ]
+        )
+
+    def _navbar_dates_picker(self, title: str):
+        return dbc.Navbar(
+            dbc.Container(
+                [
+                    self._header_title(title),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Input(id="date_from", type="date")
+                            ),
+                            dbc.Col(
+                                dbc.Input(id="date_to", type="date")
+                            )
+                        ]
+                    ),
+                ]
+            ),
+            class_name="mb-5",
+            dark=True,
+            fixed="top",
         )
 
     def _bar_chart_providers_by_location(self):
