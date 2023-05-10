@@ -156,11 +156,11 @@ class Queries:
         """
 
     @staticmethod
-    def get_most_selled_products():
+    def get_most_selled_products(date_from, date_to):
         return """
             {
                 var(func: has(description)) {
-                    c as count(bought) 
+                    c as count(bought) @filter(between(date, %s, %s))
                 }
                     
                 response(func: has(description), orderdesc: val(c)){
@@ -168,24 +168,8 @@ class Queries:
                     times: val(c)
                 }
             }
-        """
-    
-    def get_most_selled_products2():
-        return """
-            {
-                response(func: has(invoice)) {
-                    invoice
-                    total
-                    date
-                    product: ~bought {
-                        price
-                        description
-                        times:count(bought)
-                    }
-                }
-            }
-        """
-    
+        """ % (date_from.strftime("%Y-%m-%d"), date_to.strftime("%Y-%m-%d"))
+
     def get_quantity_products_selled():
         return """
             {

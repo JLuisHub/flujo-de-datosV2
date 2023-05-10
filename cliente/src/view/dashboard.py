@@ -15,26 +15,37 @@ from src.controller.dashboard_controller import DashboardController
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from dash import dcc, html, Output, Input
-from datetime import datetime, date
-import dash
-
-app = dash.Dash(__name__)
+from datetime import datetime
 
 class Dashboard:
 
     def __init__(self, app):
         self.app = app
         self.app.callback(
-            Output("sales-per-date", "figure"),
+            [Output("sales-per-date", "figure"), Output("most-selled-products", "children")],
             [Input("date_from", "value"),Input("date_to", "value")]
         )(self.update_dates)
-        self.date_from = self.date_to = datetime.now().date()
 
     def update_dates(self, date_from, date_to):
-        date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else datetime.now().date()
-        date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else datetime.now().date()
+        date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else datetime(2023, 1, 1)
+        date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else datetime(2023, 12, 31)
         data = DashboardController.load_sales_per_date_range(date_from, date_to)
-        return px.bar(data, x="dates", y="sales")
+        most_selled = DashboardController.load_most_selled_products(date_from, date_to)
+        return (
+            px.bar(data, x="dates", y="sales"),
+            [
+                html.Div(
+                    [
+                        dbc.Row(
+                            [
+                                html.H5(f"- {product['product']} [{product['times']} time(s) sold]" if int(product['times']) > 0 else "- ", style={"font-weight":"bold"}),
+                            ]
+                        ),
+                    ]
+                )
+                for product in most_selled
+            ]
+        )
 
     def document(self):
         return dbc.Container(
@@ -139,20 +150,6 @@ class Dashboard:
                         )
                     ]
                 ),
-                html.Br(),
-                html.Div(
-                    [
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    self._panel_most_selled_products2(),
-                                    width=12
-                                ),
-                            ]
-                        )
-                    ]
-                ),
-                html.Br(),
             ]
         )
 
@@ -355,7 +352,6 @@ class Dashboard:
         )
 
     def _panel_most_selled_products(self):
-        most_selled = DashboardController.load_most_selled_products()
         return html.Div(
             [
                 dbc.Card(
@@ -364,67 +360,10 @@ class Dashboard:
                             [
                                 html.H3("Most selled", className="card-title"),
                                 html.Br(),
-                                html.Div(
-                                    [
-                                        html.Div(
-                                            [
-                                                dbc.Row(
-                                                    [
-                                                        html.H5(f"- {product['product']} [{product['times']} time(s) sold]", style={"font-weight":"bold"}),
-                                                    ]
-                                                ),
-                                            ]
-                                        )
-
-                                        for product in most_selled
-                                    ]
-                                )
+                                html.Div(id="most-selled-products")
                             ]
                         )
                     ]
                 )
             ]
         )
-    
-    def _panel_most_selled_products2(self):
-        most_selled = DashboardController.load_most_selled_products2()
-        return html.Div(
-            [
-                dcc.DatePickerRange(
-                id='datepicker-range',
-                min_date_allowed=date(2023, 1, 1),
-                max_date_allowed=date(2023, 4, 12),
-                initial_visible_month=date(2023, 1, 1),
-                end_date=date(2023, 4, 12)
-                ),
-                html.Button('Buscar', id='button'),
-                html.Div(id='output-container-date-picker-range'),
-                dbc.Card(
-                    [
-                        dbc.CardBody(
-                            [
-                                html.H3("BEST SELLER BY DATE RANGE", className="card-title2"),
-                                html.Br(),
-                                html.Div(
-                                    [
-                                        html.Div(
-                                            [
-                                                dbc.Row(
-                                                    [
-                                                        html.H5(f"- d {product['date']} // d {product['product']} // t {product['times']}", style={"font-weight":"bold"}),
-                                                    ]
-                                                ),
-                                            ]
-                                        )
-
-                                        for product in most_selled
-                                    ]
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
-    
-    

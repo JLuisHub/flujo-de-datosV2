@@ -10,8 +10,6 @@
 #   Este archivo define la funcionalidad del componente
 #
 #-------------------------------------------------------------------------
-from datetime import datetime
-from operator import itemgetter
 from src.data.repository import Repository
 import json
 from datetime import datetime
@@ -145,7 +143,7 @@ class DashboardController:
         return result
 
     @staticmethod
-    def load_sales_per_date_range(date_from=datetime.utcnow().date(), date_to=datetime.utcnow().date()):
+    def load_sales_per_date_range(date_from=datetime(2023, 1, 1), date_to=datetime(2023, 12, 31)):
         response = Repository.get_sales_by_date_range(date_from, date_to)
         if response.status_code != 200:
             return {
@@ -232,8 +230,8 @@ class DashboardController:
         return result
 
     @staticmethod
-    def load_most_selled_products():
-        response = Repository.get_most_selled_products()
+    def load_most_selled_products(date_from=datetime(2023, 1, 1), date_to=datetime(2023, 12, 31)):
+        response = Repository.get_most_selled_products(date_from, date_to)
         if response.status_code != 200:
             return []
         result = []
@@ -247,30 +245,4 @@ class DashboardController:
                 "product": product["description"],
                 "times": product["times"]
             })
-        return result
-    
-    @staticmethod
-    def load_most_selled_products2():
-        response = Repository.get_most_selled_products2()
-        if response.status_code != 200:
-            return []
-        result = []
-        json_response = json.loads(response.text)
-        assert('data' in json_response.keys())
-        assert('response' in json_response['data'].keys())
-
-        for product in json_response["data"]["response"]:
-            for product2 in product["product"]:
-                second2 = product["date"]
-                print(second2)
-                d2 = datetime.strptime(second2,"%Y-%m-%dT%H:%M:%S%fZ")
-                d1 = datetime.strptime("2023-01-24T00:00:00Z","%Y-%m-%dT%H:%M:%S%fZ")
-                if d2==d1:
-                    result.append({
-                        "times":product2["times"],
-                        "date": product["date"],
-                        "product": product2["description"]
-                    })
-                    result=sorted(result, key=itemgetter('times'))
-                    result.reverse()
         return result
